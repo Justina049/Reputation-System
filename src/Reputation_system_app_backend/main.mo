@@ -53,7 +53,7 @@ actor ReputationSystem {
 
   // Runtime HashMaps
   var reputationScores = HashMap.HashMap<Principal, Nat>(10, Principal.equal, Principal.hash);
-  var lastActiveTimes = HashMap.HashMap<Principal, Time.Time>(10, Principal.equal, Principal.hash);
+  var lastActiveTime = HashMap.HashMap<Principal, Time.Time>(10, Principal.equal, Principal.hash);
   var verifiedUsers = HashMap.HashMap<Principal, Bool>(10, Principal.equal, Principal.hash);
   var ratingHistory = HashMap.HashMap<(Principal, Principal), Nat>(10, 
     func(a, b) {Principal.equal(a.0, b.0) and Principal.equal(a.1, b.1) },
@@ -62,6 +62,38 @@ actor ReputationSystem {
 
   let decayRate = 5;
   let weightTreshold = 10;
+
+  public func init() {
+    if (reputationStorage.size () > 0) {
+      reputationScores :=HashMap.fromIter<Principal, Nat>(
+        reputationStorage.vals(), 10, Principal.equal, Principal.hash
+      );
+    };
+    if (lastActiveTimeStorage.size() > 0) {
+      lastActiveTime := HashMap.fromIter<Principal, Time.Time>(
+        lastActiveTimeStorage.vals(), 10, Principal.equal, Principal.hash
+      );
+    };
+
+    if (verifiedUserStorage.size() > 0) {
+      verifiedUsers := HashMap.fromIter<Principal, Bool>(
+        verifiedUserStorage.vals(), 10, Principal.equal, Principal.hash
+      );
+    };
+
+    if (ratingHistoryStorage.size() > 0) {
+      ratingHistory := HashMap.fromIter<(Principal, Principal), Nat>(
+        ratingHistoryStorage.vals(), 10, 
+        func(a, b) {Principal.equal(a.0, b.0) and Principal.equal(a.1, b.1) },
+        func (k) {Principal.hash(k.0) + Principal.hash(k.1)}
+      );
+    };
+  };
+
+  
+
+
+
   }
 
 
