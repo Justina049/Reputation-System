@@ -97,8 +97,16 @@ actor ReputationSystem {
     lastActiveTimeStorage := Iter.toArray(lastActiveTime.entries());
     verifiedUsersStorage := Iter.toArray(verifiedUsers.entries());
     ratingHistoryStorage := Iter.toArray(ratingHistory.entries());
-  }
+  };
 
+  // Only Admins Can Verify Users
+  public shared(msg) func verifiedUser(user: Principal) : async Text {
+    if (not Principal.equal(msg.caller, admin)) {
+      return "Unauthorized: Only Admins can verify users!";
+    };
+    verifiedUsers.put(user, true);
+    return "User successfully verified!";
+  }
 
 
 
