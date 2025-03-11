@@ -1,0 +1,26 @@
+{
+  "canisters": {
+    "Reputation_system_app_backend": {
+      "main": "src/Reputation_system_app_backend/main.mo",
+      "type": "motoko"
+    },
+    "Reputation_system_app_frontend": {
+      "dependencies": [
+        "Reputation_system_app_backend"
+      ],
+      "source": [
+        "src/Reputation_system_app_frontend/dist"
+      ],
+      "type": "assets",
+      "workspace": "Reputation_system_app_frontend"
+    }
+  },
+  "defaults": {
+    "build": {
+      "args": "",
+      "packtool": ""
+    }
+  },
+  "output_env_file": ".env",
+  "version": 1
+}
