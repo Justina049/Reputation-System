@@ -2,6 +2,7 @@ import Principal "mo:base/Principal";
 import Nat "mo:base/Nat";
 import Time "mo:base/Time";
 import HashMap "mo:base/HashMap";
+import Iter "mo:base/Iter";
 // import Principal "mo:base/Principal";
 // import HashMap "mo:base/HashMap";
 
@@ -48,7 +49,7 @@ actor ReputationSystem {
   // Stable storage for persistence across upgrades
   stable var reputationStorage: [(Principal, Nat)] = [];
   stable var lastActiveTimeStorage: [(Principal, Time.Time)] = [];
-  stable var verifiedUserStorage: [(Principal, Bool)] = [];
+  stable var verifiedUsersStorage: [(Principal, Bool)] = [];
   stable var ratingHistoryStorage: [((Principal, Principal), Nat)] = [];
 
   // Runtime HashMaps
@@ -69,15 +70,16 @@ actor ReputationSystem {
         reputationStorage.vals(), 10, Principal.equal, Principal.hash
       );
     };
+
     if (lastActiveTimeStorage.size() > 0) {
       lastActiveTime := HashMap.fromIter<Principal, Time.Time>(
         lastActiveTimeStorage.vals(), 10, Principal.equal, Principal.hash
       );
     };
 
-    if (verifiedUserStorage.size() > 0) {
+    if (verifiedUsersStorage.size() > 0) {
       verifiedUsers := HashMap.fromIter<Principal, Bool>(
-        verifiedUserStorage.vals(), 10, Principal.equal, Principal.hash
+        verifiedUsersStorage.vals(), 10, Principal.equal, Principal.hash
       );
     };
 
@@ -90,11 +92,17 @@ actor ReputationSystem {
     };
   };
 
-  
-
-
-
+  system func preupgrade() {
+    reputationStorage := Iter.toArray(reputationScores.entries());
+    lastActiveTimeStorage := Iter.toArray(lastActiveTime.entries());
+    verifiedUsersStorage := Iter.toArray(verifiedUsers.entries());
+    ratingHistoryStorage := Iter.toArray(ratingHistory.entries());
   }
+
+
+
+
+}
 
 
 
