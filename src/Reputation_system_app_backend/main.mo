@@ -131,7 +131,45 @@ actor ReputationSystem {
     return reputation;
   };
 
-  
+  // Weighted Reputation System (High-Rep Users Have More Influence)
+  public shared(msg) func giveReputation(to: Principal) : async Text {
+    let caller = msg.caller;
+
+    switch (verifiedUsers.get(caller), verifiedUsers.get(to)) {
+      case (?true, ?true) { /* Both users must be verified, continue */ };
+      case (_, _) { return "Both users must be verified.";};
+    };
+
+    if (Principal.equal(caller, to)) {
+      return "You cannot give reputation to yourself!";
+    };
+
+    switch (ratingHistory.get((caller, to))) {
+      case (?_) { return "You have already rated this user!"; };
+      case (null) { /* First rating, continue */ }; 
+    };
+
+    let callerReputation = switch (reputationScores.get(caller)) {
+        case (?score) score;
+        case null 0;
+   };
+
+   var currentReputation = switch (reputationScores.get(to)) {
+    case (?score) score;
+    case null 0;
+   };
+
+   let weight = if (callerReputation > weightTreshold) 2 else 1;
+   reputationScores.put(to, currentReputation + weight);
+   ratingHistory.put((caller, to), weight);
+
+   lastActiveTime.put(caller, Time.now());
+
+   return "Reputation updated successfully!"; 
+  };
+
+
+
 
 
 
