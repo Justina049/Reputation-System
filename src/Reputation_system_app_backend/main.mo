@@ -108,8 +108,30 @@ actor ReputationSystem {
     return "User successfully verified!";
   };
 
-  
+  // Get Reputation Score (With Decay Applied)
+  public query func getReputation(user: Principal) : async Nat {
+    let currentTime = Time.now();
+    let lastSeen = switch (lastActiveTime.get(user)) {
+      case (?time) time;
+      case null Time.now();
+    };
 
+    let monthsInactive = (currentTime - lastSeen) / (30 * 24 * 60 * 60 * 1_000_000_000);
+    var reputation = switch (reputationScores.get(user)) {
+      case (?score) score;
+      case null 0;
+    };
+
+    if (monthsInactive > 0) {
+      let monthsInactiveNat = if (monthsInactive >= 0) Int.abs(monthsInactive) else 0;
+      let decayAmount = reputation * decayRate * monthsInactiveNat / 100;
+      reputation := if (decayAmount >= reputation) 0 else reputation - decayAmount;
+    };
+
+    return reputation;
+  };
+
+  
 
 
 
