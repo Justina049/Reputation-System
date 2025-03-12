@@ -3,8 +3,10 @@ import Nat "mo:base/Nat";
 import Time "mo:base/Time";
 import HashMap "mo:base/HashMap";
 import Iter "mo:base/Iter";
-// import Principal "mo:base/Principal";
-// import HashMap "mo:base/HashMap";
+// import Nat64 "mo:base/Nat64";
+import Int "mo:base/Int";
+import Text "mo:base/Text";
+
 
 // actor ReputationSystem {
 
@@ -43,8 +45,6 @@ import Iter "mo:base/Iter";
 
 actor ReputationSystem {
   let admin = Principal.fromActor(ReputationSystem);
-  
-
 
   // Stable storage for persistence across upgrades
   stable var reputationStorage: [(Principal, Nat)] = [];
@@ -106,11 +106,11 @@ actor ReputationSystem {
     };
     verifiedUsers.put(user, true);
     return "User successfully verified!";
-  }
+  };
+
+  
+
 
 
 
 }
-
-
-
