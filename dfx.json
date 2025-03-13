@@ -13,6 +13,10 @@
       ],
       "type": "assets",
       "workspace": "Reputation_system_app_frontend"
+    },
+    "internet_identity": {
+    "type": "pull",
+    "id": "rdmx6-jaaaa-aaaaa-aaadq-cai"
     }
   },
   "defaults": {
