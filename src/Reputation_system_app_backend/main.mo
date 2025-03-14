@@ -8,41 +8,6 @@ import Int "mo:base/Int";
 import Text "mo:base/Text";
 
 
-// actor ReputationSystem {
-
-//   stable var reputationStorage: [(Principal, Nat)] = [];
-//   stable var tokenStorage: [(Principal, Nat)] = [];
-  
-//   var reputationScores = HashMap.HashMap<Principal, Nat>(10, Principal.equal, Principal.hash);
-//   var tokenBalances = HashMap.HashMap<Principal, Nat>(10, Principal.equal, Principal.hash);
-
-//   // Function to check a user's reputation score
-//   public query func getReputation(user: Principal) : async Nat {
-//   switch (reputationScores.get(user)) {
-//     case (?score) score;
-//     case null 0;
-//   }
-//   };
-
-//   public func giveReputation(to: Principal) : async Text {
-//     let caller = Principal.fromActor(ReputationSystem);
-
-//     if (caller == to ) {
-//       return "You cannot give reputation to yourself!";
-//     };
-//     let currentScore = switch (reputationScores.get(to)) {
-//       case (?score) score;
-//       case null 0;
-//     };
-
-//     reputationScores.put(to, currentScore + 1);
-//     return "Reputation successfully given!";
-//   }
-  
-// };
-
-
-
 actor ReputationSystem {
   let admin = Principal.fromActor(ReputationSystem);
 
@@ -167,6 +132,36 @@ actor ReputationSystem {
 
    return "Reputation updated successfully!"; 
   };
+
+
+
+    // Report Fake Ratings (Dispute System)
+    public shared(msg) func reportFakeRating(ratedUser: Principal, reporter: Principal) : async Text {
+        switch (verifiedUsers.get(msg.caller)) {
+            case (?true) { /* Caller is verified, continue */ };
+            case (_) { return "Only verified users can report fake ratings."; };
+        };
+
+        let reportedReputation = switch (reputationScores.get(ratedUser)) {
+            case (?score) score;
+            case null 0;
+        };
+
+        // Apply Penalty for Suspicious Ratings
+        let penalty = reportedReputation / 10;
+        reputationScores.put(ratedUser, if (reportedReputation > penalty) reportedReputation - penalty else 0);
+
+        return "Fake rating reported. Admin review required.";
+    };
+
+    // 🔍 Check Verification Status
+    public query func isUserVerified(user: Principal) : async Bool {
+        switch (verifiedUsers.get(user)) {
+            case (?verified) verified;
+            case null false;
+        }
+    };
+
 
 
 
