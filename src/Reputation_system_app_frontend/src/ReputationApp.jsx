@@ -10,6 +10,8 @@ function ReputationApp() {
   const [message, setMessage] = useState("");
   const [actor, setActor] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [reportTarget, setReportTarget] = useState("");
+  const [reportMessage, setReportMessage] = useState("");
   
   // Check if user is already authenticated on component mount
   useEffect(() => {
@@ -117,7 +119,32 @@ function ReputationApp() {
       setIsLoading(false);
     }
   };
-  
+  // Report fake rating function
+  const reportFakeRating = async () => {
+    if (!actor) {
+      setReportMessage("Error: Not authenticated");
+      return;
+    }
+    
+    if (!reportTarget) {
+      setReportMessage("Error: Please enter a principal to report");
+      return;
+    }
+    
+    setIsLoading(true);
+    try {
+      // Validate the principal format
+      const principal = Principal.fromText(reportTarget);
+      const result = await actor.reportFakeRating(principal, userPrincipal);
+      setReportMessage(result);
+    } catch (error) {
+      console.error("Reporting failed:", error);
+      setReportMessage("Error: " + error.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="reputation-app">
       <h1>Reputation System</h1>
@@ -147,7 +174,43 @@ function ReputationApp() {
           </div>
           
           {message && <div className="message">{message}</div>}
+          <div className="report-form">
+            <h2>Report Fake Rating</h2>
+            <p>If you believe a user has received fake ratings, you can report them for review.</p>
+            <input 
+              value={reportTarget}
+              onChange={(e) => setReportTarget(e.target.value)}
+              placeholder="Enter principal to report"
+              disabled={isLoading}
+            />
+            <button 
+              onClick={reportFakeRating} 
+              disabled={isLoading || !reportTarget}
+              className="report-button"
+            >
+              {isLoading ? "Processing..." : "Report Fake Rating"}
+            </button>
+            {reportMessage && <div className="message">{reportMessage}</div>}
+          </div>
+          <div className="verification-status">
+            <h2>Verification Status</h2>
+            <p>Your verification status determines what actions you can take in the system.</p>
+            <button
+              onClick={async () => {
+                try {
+                  isVerified = await actor.isUserVerified(Principal.fromText(userPrincipal));
+                  setMessage(isVerified ? "You are verified!" : "You are not verified yet.");
+                } catch (error) {
+                  setMessage("Error checking verification status: " + error.message);
+                }
+              }}
+              className="check-status-button"
+            >
+              Check My Verification Status
+            </button>
+          </div>
         </div>
+        
       ) : (
         <div className="login-view">
           <p>Please login with Internet Identity to use the Reputation System</p>
